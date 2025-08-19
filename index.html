@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PrintMini</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    header {
+      background: #4CAF50;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    .container {
+      padding: 2rem;
+      text-align: center;
+    }
+    .buy-btn {
+      padding: 1rem 2rem;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      background-color: rgba(0,0,0,0.6);
+    }
+    .modal-content {
+      background-color: #fff;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      position: relative;
+      z-index: 1001;
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .close:hover { color: black; }
+    .radio-group { text-align: left; margin: 1rem 0; }
+    .order-btn {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 1rem;
+      width: 100%;
+      cursor: pointer;
+    }
+    .modal-open {
+      overflow: hidden;
+      position: fixed;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Welcome to PrintMini</h1>
+  </header>
+
+  <div class="container">
+    <h2>Mini Printer - ₹1299</h2>
+    <p>High quality mini printer for all your needs.</p>
+    <button class="buy-btn" onclick="openCheckout()">Buy Now</button>
+  </div>
+
+  <!-- Checkout Modal -->
+  <div id="checkoutModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeCheckout()">&times;</span>
+      <h2>Checkout</h2>
+      <div class="radio-group">
+        <label><input type="radio" name="paymentMethod" id="gpayRadio"> Pay with Google Pay</label><br>
+        <label><input type="radio" name="paymentMethod" id="codRadio"> Cash on Delivery</label>
+      </div>
+      <button class="order-btn" onclick="completeOrder()">Complete Order</button>
+    </div>
+  </div>
+
+  <script>
+    const modal = document.getElementById("checkoutModal");
+
+    function openCheckout() {
+      modal.style.display = "block";
+      document.body.classList.add("modal-open");
+    }
+
+    function closeCheckout() {
+      modal.style.display = "none";
+      document.body.classList.remove("modal-open");
+    }
+
+    function processGPay() {
+      const upiID = "sat3535d42@okaxis";
+      const amount = "1299";
+      const note = "PrintMini Printer Purchase";
+
+      const upiLink = `upi://pay?pa=${upiID}&pn=PrintMini&am=${amount}&tn=${encodeURIComponent(note)}&cu=INR`;
+
+      // Force open in mobile payment app
+      window.location.replace(upiLink);
+
+      setTimeout(() => {
+        showThankYou();
+      }, 6000);
+    }
+
+    function completeOrder() {
+      const method = document.querySelector('input[name="paymentMethod"]:checked');
+      if (!method) {
+        alert("Please select a payment method.");
+        return;
+      }
+      if (method.id === "codRadio") {
+        alert("Order placed successfully! Pay on delivery.");
+        closeCheckout();
+        showThankYou();
+      } else if (method.id === "gpayRadio") {
+        processGPay();
+      }
+    }
+
+    function showThankYou() {
+      document.body.innerHTML = `
+        <div style="text-align:center;padding:2rem;font-family:sans-serif;">
+          <h1>✅ Thank you for your order!</h1>
+          <p>Your PrintMini order has been placed.</p>
+          <button onclick="window.location.href='upi://pay?pa=sat3535d42@okaxis&pn=PrintMini&am=1299&tn=PrintMini%20Printer%20Purchase&cu=INR'" 
+            style="padding:1rem 2rem;margin:1rem;background:#4CAF50;color:white;border:none;border-radius:8px;">Open Google Pay Again</button>
+          <br/>
+          <button onclick="navigator.clipboard.writeText('sat3535d42@okaxis');alert('UPI ID copied!');" 
+            style="padding:1rem 2rem;margin:1rem;background:#555;color:white;border:none;border-radius:8px;">Copy UPI ID</button>
+        </div>
+      `;
+    }
+
+    window.onclick = function(event) {
+      if (event.target === modal) {
+        closeCheckout();
+      }
+    }
+  </script>
+</body>
+</html>
